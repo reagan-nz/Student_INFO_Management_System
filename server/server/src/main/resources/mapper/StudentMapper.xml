@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.mapper.StudentMapper">
+
+    <sql id="whereCondition">
+        <where>
+            <if test="name != null and name != ''">
+                AND s.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="classId != null">
+                AND s.class_id = #{classId}
+            </if>
+        </where>
+    </sql>
+
+    <select id="list" resultType="com.java.entity.Student">
+        SELECT s.id, s.student_no, s.name, s.gender, s.age, s.phone,
+               s.class_id, s.address, c.class_name
+        FROM student s
+        LEFT JOIN class_info c ON s.class_id = c.id
+        <include refid="whereCondition"/>
+        ORDER BY s.id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM student s
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="findById" resultType="com.java.entity.Student">
+        SELECT s.id, s.student_no, s.name, s.gender, s.age, s.phone,
+               s.class_id, s.address, c.class_name
+        FROM student s
+        LEFT JOIN class_info c ON s.class_id = c.id
+        WHERE s.id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO student (student_no, name, gender, age, phone, class_id, address)
+        VALUES (#{studentNo}, #{name}, #{gender}, #{age}, #{phone}, #{classId}, #{address})
+    </insert>
+
+    <update id="update">
+        UPDATE student
+        SET student_no = #{studentNo},
+            name       = #{name},
+            gender     = #{gender},
+            age        = #{age},
+            phone      = #{phone},
+            class_id   = #{classId},
+            address    = #{address}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM student WHERE id = #{id}
+    </delete>
+
+</mapper>

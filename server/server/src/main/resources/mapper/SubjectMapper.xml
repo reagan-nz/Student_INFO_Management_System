@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.mapper.SubjectMapper">
+
+    <sql id="whereCondition">
+        <where>
+            <if test="subjectName != null and subjectName != ''">
+                AND subject_name LIKE CONCAT('%', #{subjectName}, '%')
+            </if>
+        </where>
+    </sql>
+
+    <select id="list" resultType="com.java.entity.Subject">
+        SELECT id, subject_name, credit, description
+        FROM subject
+        <include refid="whereCondition"/>
+        ORDER BY id
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM subject
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="findAll" resultType="com.java.entity.Subject">
+        SELECT id, subject_name, credit, description
+        FROM subject ORDER BY id
+    </select>
+
+    <select id="findById" resultType="com.java.entity.Subject">
+        SELECT id, subject_name, credit, description
+        FROM subject WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO subject (subject_name, credit, description)
+        VALUES (#{subjectName}, #{credit}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE subject
+        SET subject_name = #{subjectName},
+            credit       = #{credit},
+            description  = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM subject WHERE id = #{id}
+    </delete>
+
+</mapper>

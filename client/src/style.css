@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+}
+
+/* Element Plus overrides for a modern feel */
+:root {
+  --el-color-primary: #6366f1;
+  --el-color-primary-light-3: #818cf8;
+  --el-color-primary-light-5: #a5b4fc;
+  --el-color-primary-light-7: #c7d2fe;
+  --el-color-primary-light-8: #e0e7ff;
+  --el-color-primary-light-9: #eef2ff;
+  --el-color-primary-dark-2: #4f46e5;
+  --el-border-radius-base: 8px;
+}
+
+.el-button--primary {
+  --el-button-bg-color: #6366f1;
+  --el-button-border-color: #6366f1;
+  --el-button-hover-bg-color: #4f46e5;
+  --el-button-hover-border-color: #4f46e5;
+}
+
+.el-dialog {
+  border-radius: 16px !important;
+}
+.el-dialog__header {
+  padding: 20px 24px 16px !important;
+  border-bottom: 1px solid #f0f0f0;
+}
+.el-dialog__body {
+  padding: 24px !important;
+}
+.el-dialog__footer {
+  padding: 16px 24px 20px !important;
+  border-top: 1px solid #f0f0f0;
+}

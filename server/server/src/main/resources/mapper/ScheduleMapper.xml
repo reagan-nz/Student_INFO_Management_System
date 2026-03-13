@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.mapper.ScheduleMapper">
+
+    <select id="listSlots" resultType="com.java.entity.ScheduleSlot">
+        SELECT ss.id, ss.subject_id, ss.day_of_week, ss.start_time, ss.end_time,
+               ss.room, ss.semester, sub.subject_name
+        FROM schedule_slot ss
+        LEFT JOIN subject sub ON ss.subject_id = sub.id
+        <where>
+            <if test="semester != null and semester != ''">
+                AND ss.semester = #{semester}
+            </if>
+        </where>
+        ORDER BY ss.day_of_week, ss.start_time
+    </select>
+
+    <select id="listSlotsByStudentId" resultType="com.java.entity.ScheduleSlot">
+        SELECT ss.id, ss.subject_id, ss.day_of_week, ss.start_time, ss.end_time,
+               ss.room, ss.semester, sub.subject_name
+        FROM schedule_slot ss
+        JOIN subject sub ON ss.subject_id = sub.id
+        JOIN enrollment e ON e.subject_id = ss.subject_id AND e.semester = ss.semester
+        WHERE e.student_id = #{studentId}
+        <if test="semester != null and semester != ''">
+            AND ss.semester = #{semester}
+        </if>
+        ORDER BY ss.day_of_week, ss.start_time
+    </select>
+
+    <select id="findById" resultType="com.java.entity.ScheduleSlot">
+        SELECT ss.id, ss.subject_id, ss.day_of_week, ss.start_time, ss.end_time,
+               ss.room, ss.semester, sub.subject_name
+        FROM schedule_slot ss
+        LEFT JOIN subject sub ON ss.subject_id = sub.id
+        WHERE ss.id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_slot (subject_id, day_of_week, start_time, end_time, room, semester)
+        VALUES (#{subjectId}, #{dayOfWeek}, #{startTime}, #{endTime}, #{room}, #{semester})
+    </insert>
+
+    <update id="update">
+        UPDATE schedule_slot
+        SET subject_id = #{subjectId}, day_of_week = #{dayOfWeek},
+            start_time = #{startTime}, end_time = #{endTime},
+            room = #{room}, semester = #{semester}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM schedule_slot WHERE id = #{id}
+    </delete>
+
+    <select id="findAllSemesters" resultType="java.lang.String">
+        SELECT DISTINCT semester FROM schedule_slot ORDER BY semester DESC
+    </select>
+
+</mapper>

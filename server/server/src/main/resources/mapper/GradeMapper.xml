@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.mapper.GradeMapper">
+
+    <sql id="whereCondition">
+        <where>
+            <if test="studentId != null">
+                AND g.student_id = #{studentId}
+            </if>
+            <if test="subjectId != null">
+                AND g.subject_id = #{subjectId}
+            </if>
+            <if test="semester != null and semester != ''">
+                AND g.semester = #{semester}
+            </if>
+        </where>
+    </sql>
+
+    <select id="list" resultType="com.java.entity.Grade">
+        SELECT g.id, g.student_id, g.subject_id, g.score, g.semester,
+               s.name AS student_name, s.student_no,
+               sub.subject_name, sub.credit
+        FROM grade g
+        LEFT JOIN student s ON g.student_id = s.id
+        LEFT JOIN subject sub ON g.subject_id = sub.id
+        <include refid="whereCondition"/>
+        ORDER BY g.id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM grade g
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="findById" resultType="com.java.entity.Grade">
+        SELECT g.id, g.student_id, g.subject_id, g.score, g.semester,
+               s.name AS student_name, s.student_no,
+               sub.subject_name, sub.credit
+        FROM grade g
+        LEFT JOIN student s ON g.student_id = s.id
+        LEFT JOIN subject sub ON g.subject_id = sub.id
+        WHERE g.id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO grade (student_id, subject_id, score, semester)
+        VALUES (#{studentId}, #{subjectId}, #{score}, #{semester})
+    </insert>
+
+    <update id="update">
+        UPDATE grade
+        SET student_id = #{studentId},
+            subject_id = #{subjectId},
+            score      = #{score},
+            semester   = #{semester}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM grade WHERE id = #{id}
+    </delete>
+
+    <select id="calcGpaByStudentId" resultType="java.math.BigDecimal">
+        SELECT ROUND(SUM(g.score * sub.credit) / SUM(sub.credit), 2)
+        FROM grade g
+        JOIN subject sub ON g.subject_id = sub.id
+        WHERE g.student_id = #{studentId}
+    </select>
+
+    <select id="calcOverallAverage" resultType="java.math.BigDecimal">
+        SELECT ROUND(AVG(score), 2) FROM grade
+    </select>
+
+    <select id="scoreDistribution" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN score >= 90 THEN 'A (90-100)'
+                WHEN score >= 80 THEN 'B (80-89)'
+                WHEN score >= 70 THEN 'C (70-79)'
+                WHEN score >= 60 THEN 'D (60-69)'
+                ELSE 'F (Below 60)'
+            END AS grade_level,
+            COUNT(*) AS cnt
+        FROM grade
+        GROUP BY grade_level
+        ORDER BY MIN(score) DESC
+    </select>
+
+    <select id="topStudents" resultType="java.util.Map">
+        SELECT s.id, s.name, s.student_no,
+               ROUND(SUM(g.score * sub.credit) / SUM(sub.credit), 2) AS gpa
+        FROM grade g
+        JOIN student s ON g.student_id = s.id
+        JOIN subject sub ON g.subject_id = sub.id
+        GROUP BY s.id, s.name, s.student_no
+        ORDER BY gpa DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="avgScorePerSubject" resultType="java.util.Map">
+        SELECT sub.subject_name, ROUND(AVG(g.score), 1) AS avg_score
+        FROM grade g
+        JOIN subject sub ON g.subject_id = sub.id
+        GROUP BY sub.id, sub.subject_name
+        ORDER BY avg_score DESC
+    </select>
+
+    <select id="findAllSemesters" resultType="java.lang.String">
+        SELECT DISTINCT semester FROM grade ORDER BY semester DESC
+    </select>
+
+</mapper>
